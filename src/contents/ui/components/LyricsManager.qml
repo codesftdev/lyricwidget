@@ -1,6 +1,6 @@
 import QtQuick
 
-QtObject {
+Item {
     id: root
 
     property string title: ""
@@ -18,11 +18,18 @@ QtObject {
     readonly property int maxCacheSize: 50
 
     property string _currentFetchKey: ""
+    property var activeXhr: null
 
-    onTitleChanged: fetchLyrics()
-    onArtistsChanged: fetchLyrics()
-    onAlbumChanged: fetchLyrics()
-    onDurationChanged: fetchLyrics()
+    Timer {
+        id: debounceTimer
+        interval: 300
+        onTriggered: _doFetchLyrics()
+    }
+
+    onTitleChanged: debounceTimer.restart()
+    onArtistsChanged: debounceTimer.restart()
+    onAlbumChanged: debounceTimer.restart()
+    onDurationChanged: debounceTimer.restart()
 
     onPositionChanged: updateCurrentLine()
 
@@ -31,6 +38,10 @@ QtObject {
     }
 
     function fetchLyrics() {
+        debounceTimer.restart()
+    }
+
+    function _doFetchLyrics() {
         if (!title || !artists) {
             currentLineText = ""
             hasLyrics = false
@@ -39,7 +50,8 @@ QtObject {
         }
 
         const key = cacheKey()
-        if (lyricsCache[key]) {
+        const cached = lyricsCache[key]
+        if (Array.isArray(cached) && cached.length > 0) {
             hasLyrics = true
             isLoading = false
             updateCurrentLine()
@@ -49,6 +61,11 @@ QtObject {
         // Don't fetch if already loading the same key
         if (isLoading && _currentFetchKey === key) {
             return
+        }
+
+        if (activeXhr) {
+            try { activeXhr.abort() } catch (e) {}
+            activeXhr = null
         }
 
         _currentFetchKey = key
@@ -68,11 +85,20 @@ QtObject {
             url += `&duration=${durationSec}`
         }
 
+        const requestKey = cacheKey()
         const xhr = new XMLHttpRequest()
+        activeXhr = xhr
+        xhr.timeout = 10000
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (activeXhr === xhr) {
+                    activeXhr = null
+                }
                 isLoading = false
                 _currentFetchKey = ""
+                if (requestKey !== cacheKey()) {
+                    return
+                }
                 if (xhr.status === 200) {
                     try {
                         const data = JSON.parse(xhr.responseText)
@@ -105,12 +131,19 @@ QtObject {
                 }
             }
         }
+        xhr.ontimeout = function() {
+            console.error("Lyrics request timed out for:", requestKey)
+        }
+        xhr.onerror = function() {
+            console.error("Lyrics request failed for:", requestKey)
+        }
         xhr.open("GET", url)
+        xhr.setRequestHeader("User-Agent", "LyricWidget v4.1.0 (https://github.com/codesftdev/lyricwidget)")
         xhr.send()
     }
 
     function addToCache(key, lyrics) {
-        // Simple LRU: if cache too big, remove oldest entries
+        // Simple FIFO: if cache too big, remove oldest entries
         const keys = Object.keys(lyricsCache)
         if (keys.length >= maxCacheSize) {
             const toRemove = keys.slice(0, keys.length - maxCacheSize + 1)
@@ -123,24 +156,33 @@ QtObject {
 
     function parseLRC(lrcText) {
         const lines = []
-        // Match [mm:ss.xx] or [mm:ss.xxx] where xx/xxx can be 2-3 digits
-        const lineRegex = /^\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)$/
+        const tsRegex = /^\[(\d{2}):(\d{2})\.(\d{2,3})\]/
         const textLines = lrcText.split('\n')
 
         for (let i = 0; i < textLines.length; i++) {
-            const match = textLines[i].match(lineRegex)
-            if (match) {
+            const line = textLines[i]
+            const timestamps = []
+            let remaining = line
+
+            while (true) {
+                const match = remaining.match(tsRegex)
+                if (!match) break
+                timestamps.push(match)
+                remaining = remaining.substring(match[0].length)
+            }
+
+            const text = remaining.trim()
+            if (text.length === 0 || timestamps.length === 0) continue
+
+            for (let j = 0; j < timestamps.length; j++) {
+                const match = timestamps[j]
                 const minutes = parseInt(match[1])
                 const seconds = parseInt(match[2])
                 // Pad to 3 digits to treat as milliseconds
                 const fractionStr = match[3].padEnd(3, '0')
                 const fraction = parseInt(fractionStr)
                 const timeMs = (minutes * 60 + seconds) * 1000 + fraction
-                const text = match[4].trim()
-                // Skip empty lines for display purposes
-                if (text.length > 0) {
-                    lines.push({ time: timeMs, text: text })
-                }
+                lines.push({ time: timeMs, text: text })
             }
         }
 

@@ -25,10 +25,69 @@ Item {
     Layout.fillWidth: !horizontal || fillAvailableSpace
 
     readonly property int widgetThickness: horizontal ? height : width
-    readonly property int controlsSize: Math.round(widgetThickness * plasmoid.configuration.panelControlsSizeRatio)
+    readonly property int widgetLength: horizontal ? width : height
+    
+    // Font metrics to calculate text heights
+    FontMetrics {
+        id: baseFontMetrics
+        font: baseFont
+    }
+    
+    FontMetrics {
+        id: scaledFontMetrics
+        font: compact.scaledFont
+    }
+    
+    // Scaled line height for layout calculations
+    readonly property real scaledLineHeight: scaledFontMetrics.height
+    
+    // Calculate font scale factor to fit all content within panel thickness.
+    // Horizontal panel layout: ColumnLayout [ grid(1 row) | thirdLine ]
+    // Grid row height = max(icon, controls, songText).
+    // Total height = max(icon/controls, songText) + thirdLine + spacing
+    // Icons/controls use availableThickness = widgetThickness - thirdLineHeight - spacing.
+    // Constraint: songText + thirdLine + spacing <= widgetThickness
+    // If icons/controls are taller than songText, proven: they still fit within availableThickness.
+    readonly property real fontScaleFactor: {
+        if (!compact.thirdLineVisible || !horizontal) return 1.0
+        
+        const L = baseFontMetrics.height
+        const spacing = Kirigami.Units.smallSpacing
+        
+        var numSongLines = 0
+        if (plasmoid.configuration.songTextInPanel) {
+            numSongLines = 2
+        }
+        
+        const totalTextLines = numSongLines + 1
+        const needed = totalTextLines * L + spacing
+        
+        if (needed <= widgetThickness) return 1.0
+        
+        const scaleFactor = (widgetThickness - spacing) / (totalTextLines * L)
+        return Math.max(0.3, Math.min(1.0, scaleFactor))
+    }
+    
+    readonly property int availableThickness: {
+        if (compact.thirdLineVisible && horizontal) {
+            const thirdLineH = Math.ceil(scaledLineHeight)
+            const spacing = Kirigami.Units.smallSpacing
+            return Math.max(widgetThickness - thirdLineH - spacing, 16)
+        }
+        return widgetThickness
+    }
+    readonly property int controlsSize: Math.round(availableThickness * plasmoid.configuration.panelControlsSizeRatio)
     readonly property bool spaceBetweenControlsInPanel: plasmoid.configuration.spaceBetweenControlsInPanel
-    readonly property int iconSize: Math.round(widgetThickness * plasmoid.configuration.panelIconSizeRatio)
+    readonly property int iconSize: Math.round(availableThickness * plasmoid.configuration.panelIconSizeRatio)
     readonly property int lengthMargin: Math.round((widgetThickness - Math.max(controlsSize, iconSize))) / 2
+    
+    // Scaled font for compact view
+    readonly property font scaledFont: {
+        if (fontScaleFactor >= 1.0) return baseFont
+        var f = Qt.font(baseFont)
+        f.pointSize = Math.max(1, Math.round(baseFont.pointSize * fontScaleFactor))
+        return f
+    }
 
     readonly property bool colorsFromAlbumCover: plasmoid.configuration.colorsFromAlbumCover
     readonly property int panelBackgroundRadius: plasmoid.configuration.panelBackgroundRadius
@@ -136,8 +195,25 @@ Item {
             columnSpacing: Kirigami.Units.smallSpacing
             rowSpacing: Kirigami.Units.smallSpacing
 
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.fillHeight: horizontal || fillAvailableSpace
+            Layout.fillWidth: !horizontal || fillAvailableSpace
+            Layout.maximumHeight: compact.thirdLineVisible && horizontal ? compact.availableThickness : Number.POSITIVE_INFINITY
+            Layout.alignment: {
+                if (fillAvailableSpace) return Qt.AlignVCenter | Qt.AlignHCenter
+                if (horizontal) {
+                    switch (plasmoid.configuration.contentAlignment) {
+                    case 1: return Qt.AlignLeft | Qt.AlignVCenter
+                    case 2: return Qt.AlignRight | Qt.AlignVCenter
+                    default: return Qt.AlignHCenter | Qt.AlignVCenter
+                    }
+                } else {
+                    switch (plasmoid.configuration.contentAlignment) {
+                    case 1: return Qt.AlignTop | Qt.AlignHCenter
+                    case 2: return Qt.AlignBottom | Qt.AlignHCenter
+                    default: return Qt.AlignVCenter | Qt.AlignHCenter
+                    }
+                }
+            }
 
             PanelIcon {
             id: panelIcon
@@ -148,8 +224,10 @@ Item {
             size: compact.iconSize
             icon: plasmoid.configuration.panelIcon
             imageUrl: player.artUrl
-            imageRadius: plasmoid.configuration.albumCoverRadius
-            fallbackToIconWhenImageNotAvailable: plasmoid.configuration.fallbackToIconWhenArtNotAvailable
+            imageRadius: plasmoid.configuration.albumCoverRadiusProportional ? 
+                Math.round(iconSize * plasmoid.configuration.albumCoverRadius / 100) : 
+                plasmoid.configuration.albumCoverRadius
+            fallbackToIconWhenImageNotAvailable: plasmoid.configuration.fallbackToIconWhenImageNotAvailable
             type: {
                 if (!plasmoid.configuration.useAlbumCoverAsPanelIcon) {
                     return PanelIcon.Type.Icon;
@@ -225,7 +303,7 @@ Item {
                         }
                         return player.playbackStatus !== Mpris.PlaybackStatus.Playing
                     }
-                    textFont: baseFont
+                    textFont: compact.scaledFont
                     color: foregroundColor
                     title: player.title
                     artists: player.artists
@@ -294,37 +372,76 @@ Item {
 
         }
 
-        ScrollingText {
-            id: thirdLine
-            visible: compact.thirdLineVisible
-            Layout.fillWidth: true
-
-            text: {
-                switch (plasmoid.configuration.thirdLineContent) {
-                case 1:
-                    return player.title;
-                case 2:
-                    return player.artists;
-                case 3:
-                    return player.album;
-                case 4:
-                    return lyricsManager.currentLineText;
-                case 5:
-                    return [player.title, player.artists].filter((x) => x).join(" - ");
-                case 6:
-                    return [player.title, player.artists, player.album].filter((x) => x).join(" - ");
-                default:
-                    return "";
+        // Third line - independently positioned and aligned from the grid section
+        ColumnLayout {
+            id: thirdLineContainer
+            visible: compact.thirdLineVisible && thirdLine.lineText !== ""
+            spacing: 0
+            Layout.fillWidth: horizontal ? (plasmoid.configuration.thirdLineWidthMode === 0) : true
+            Layout.fillHeight: !horizontal ? (plasmoid.configuration.thirdLineWidthMode === 0) : false
+            Layout.preferredWidth: horizontal && plasmoid.configuration.thirdLineWidthMode === 1 ? 
+                Math.min(thirdLine.implicitWidth, plasmoid.configuration.thirdLineMaxWidth) : -1
+            Layout.preferredHeight: !horizontal && plasmoid.configuration.thirdLineWidthMode === 1 ? 
+                Math.min(thirdLine.implicitWidth, plasmoid.configuration.thirdLineMaxWidth) : -1
+            Layout.maximumHeight: horizontal ? Math.ceil(compact.scaledLineHeight) : Number.POSITIVE_INFINITY
+            Layout.alignment: {
+                if (horizontal) {
+                    switch (plasmoid.configuration.contentAlignment) {
+                    case 1: return Qt.AlignLeft
+                    case 2: return Qt.AlignRight
+                    default: return Qt.AlignHCenter
+                    }
+                } else {
+                    switch (plasmoid.configuration.contentAlignment) {
+                    case 1: return Qt.AlignTop
+                    case 2: return Qt.AlignBottom
+                    default: return Qt.AlignVCenter
+                    }
                 }
             }
-            textColor: foregroundColor
-            font: baseFont
-            speed: plasmoid.configuration.thirdLineScrollingSpeed
-            maxWidth: plasmoid.configuration.thirdLineMaxWidth
-            scrollingEnabled: plasmoid.configuration.thirdLineScrollingEnabled
-            textAlignment: songGrid.textAlignment
-            truncateStyle: plasmoid.configuration.compactTruncatedTextStyle
-            opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1.0 : 0.75
+            Layout.minimumWidth: 0
+            Layout.minimumHeight: 0
+            
+            ScrollingText {
+                id: thirdLine
+                Layout.fillWidth: true
+                
+                readonly property string lineText: {
+                    switch (plasmoid.configuration.thirdLineContent) {
+                    case 1:
+                        return player.title;
+                    case 2:
+                        return player.artists;
+                    case 3:
+                        return player.album;
+                    case 4:
+                        return lyricsManager.currentLineText;
+                    case 5:
+                        return [player.title, player.artists].filter((x) => x).join(" - ");
+                    case 6:
+                        return [player.title, player.artists, player.album].filter((x) => x).join(" - ");
+                    default:
+                        return "";
+                    }
+                }
+                
+                text: lineText
+                textColor: foregroundColor
+                font: compact.scaledFont
+                speed: plasmoid.configuration.thirdLineScrollingSpeed
+                maxWidth: plasmoid.configuration.thirdLineWidthMode === 0 ? widgetLength : plasmoid.configuration.thirdLineMaxWidth
+                scrollingEnabled: plasmoid.configuration.thirdLineScrollingEnabled
+                textAlignment: {
+                    switch (plasmoid.configuration.thirdLineAlignment) {
+                    case 0: return Qt.AlignHCenter
+                    case 1: return Qt.AlignLeft
+                    case 2: return Qt.AlignRight
+                    default: return Qt.AlignHCenter
+                    }
+                }
+                truncateStyle: plasmoid.configuration.compactTruncatedTextStyle
+                opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1.0 : 0.75
+            }
         }
     }
 }
