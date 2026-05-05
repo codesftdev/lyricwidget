@@ -1,11 +1,11 @@
-# Ukrainian translations for plasmusic-toolbar package.
-# Copyright (C) 2025 THE plasmusic-toolbar'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the plasmusic-toolbar package.
+# Ukrainian translations for lyricwidget package.
+# Copyright (C) 2025 THE lyricwidget'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the lyricwidget package.
 # Vsevolod «Damglador» Stopchanskyi <vse.stopchanskyi@gmail.com>, 2025.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: plasmusic-toolbar\n"
+"Project-Id-Version: lyricwidget\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-09 21:39+0200\n"
 "PO-Revision-Date: 2025-09-30 01:49+0200\n"

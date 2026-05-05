@@ -1,3 +1,4 @@
+import "./components"
 import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.core as PlasmaCore
@@ -48,7 +49,15 @@ PlasmoidItem {
             Plasmoid.status = (showWhenNoMedia || player.ready) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
             console.debug(`Player ready changed: ${player.ready} -> plasmoid status changed: ${Plasmoid.status}`)
         }
+    }
 
+    LyricsManager {
+        id: lyricsManager
+        title: player.title
+        artists: player.artists
+        album: player.album
+        duration: player.songLength
+        position: player.songPosition
     }
 
     compactRepresentation: Compact {}

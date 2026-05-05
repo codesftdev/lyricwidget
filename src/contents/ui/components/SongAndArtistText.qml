@@ -9,7 +9,8 @@ ColumnLayout {
     enum TextPosition {
         Hidden,
         FirstLine,
-        SecondLine
+        SecondLine,
+        ThirdLine
     }
 
     enum VerticalPosition {
@@ -33,7 +34,7 @@ ColumnLayout {
 
     property bool hideAlbumForSingles
     property bool showAlbum: !hideAlbumForSingles || (root.album != root.title)
-    
+
     property font textFont: Kirigami.Theme.defaultFont
     property font boldTextFont: Qt.font(Object.assign({}, textFont, {weight: Font.Bold}))
     property string color: Kirigami.Theme.textColor
@@ -41,6 +42,9 @@ ColumnLayout {
     property string artists
     property string album
     property int textAlignment: Qt.AlignHCenter
+
+    property string lyricsText: ""
+    property int lyricsPosition: SongAndArtistText.TextPosition.Hidden
 
     spacing: 0
 
@@ -65,8 +69,34 @@ ColumnLayout {
         return arr;        
     }
 
-    property string finalFirstText:  firstLineArray.filter((x) => x).join(" - ")
-    property string finalSecondText: secondLineArray.filter((x) => x).join(" - ")
+    property var thirdLineArray: {
+        const arr = [];
+
+        if (artistsPosition == SongAndArtistText.TextPosition.ThirdLine) arr.push(root.artists);
+        if (titlePosition   == SongAndArtistText.TextPosition.ThirdLine) arr.push(root.title);
+        if (showAlbum && albumPosition == SongAndArtistText.TextPosition.ThirdLine) arr.push(root.album);
+
+        return arr;        
+    }
+
+    property string finalFirstText: {
+        if (lyricsPosition == SongAndArtistText.TextPosition.FirstLine && lyricsText) {
+            return lyricsText;
+        }
+        return firstLineArray.filter((x) => x).join(" - ");
+    }
+    property string finalSecondText: {
+        if (lyricsPosition == SongAndArtistText.TextPosition.SecondLine && lyricsText) {
+            return lyricsText;
+        }
+        return secondLineArray.filter((x) => x).join(" - ");
+    }
+    property string finalThirdText: {
+        if (lyricsPosition == SongAndArtistText.TextPosition.ThirdLine && lyricsText) {
+            return lyricsText;
+        }
+        return thirdLineArray.filter((x) => x).join(" - ");
+    }
 
     // first row of text (the only row, if there is only one)
     ScrollingText {
@@ -97,6 +127,25 @@ ColumnLayout {
         maxWidth: root.maxWidth
 
         text: root.finalSecondText
+        
+        scrollingEnabled: root.scrollingEnabled
+        scrollResetOnPause: root.scrollingResetOnPause
+        textColor: root.color
+        forcePauseScrolling: root.forcePauseScrolling
+        truncateStyle: root.truncateStyle
+        textAlignment: root.textAlignment
+    }
+
+    // third row of text
+    ScrollingText {
+        // visible only when necessary
+        visible: text.length !== 0
+        overflowBehaviour: root.scrollingBehaviour
+        font: root.textFont
+        speed: root.scrollingSpeed
+        maxWidth: root.maxWidth
+
+        text: root.finalThirdText
         
         scrollingEnabled: root.scrollingEnabled
         scrollResetOnPause: root.scrollingResetOnPause

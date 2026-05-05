@@ -8,12 +8,12 @@
             }
         ],
         "Description": "Show currently playing song information and provide playback controls",
-        "BugReportUrl": "https://github.com/ccatterina/plasmusic-toolbar/issues",
-        "Website": "https://github.com/ccatterina/plasmusic-toolbar",
+        "BugReportUrl": "https://github.com/codesftdev/lyricwidget/issues",
+        "Website": "https://github.com/codesftdev/lyricwidget",
         "Icon": "view-media-track",
-        "Id": "plasmusic-toolbar",
+        "Id": "lyricwidget",
         "License": "GPL3",
-        "Name": "PlasMusic Toolbar",
+        "Name": "LyricWidget",
         "Version": "4.1.0",
         "Category": "Multimedia"
     },
