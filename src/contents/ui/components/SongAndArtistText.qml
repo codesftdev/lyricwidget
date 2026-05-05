@@ -9,7 +9,8 @@ ColumnLayout {
     enum TextPosition {
         Hidden,
         FirstLine,
-        SecondLine
+        SecondLine,
+        ThirdLine
     }
 
     enum VerticalPosition {
@@ -68,6 +69,16 @@ ColumnLayout {
         return arr;        
     }
 
+    property var thirdLineArray: {
+        const arr = [];
+
+        if (artistsPosition == SongAndArtistText.TextPosition.ThirdLine) arr.push(root.artists);
+        if (titlePosition   == SongAndArtistText.TextPosition.ThirdLine) arr.push(root.title);
+        if (showAlbum && albumPosition == SongAndArtistText.TextPosition.ThirdLine) arr.push(root.album);
+
+        return arr;        
+    }
+
     property string finalFirstText: {
         if (lyricsPosition == SongAndArtistText.TextPosition.FirstLine && lyricsText) {
             return lyricsText;
@@ -79,6 +90,12 @@ ColumnLayout {
             return lyricsText;
         }
         return secondLineArray.filter((x) => x).join(" - ");
+    }
+    property string finalThirdText: {
+        if (lyricsPosition == SongAndArtistText.TextPosition.ThirdLine && lyricsText) {
+            return lyricsText;
+        }
+        return thirdLineArray.filter((x) => x).join(" - ");
     }
 
     // first row of text (the only row, if there is only one)
@@ -110,6 +127,25 @@ ColumnLayout {
         maxWidth: root.maxWidth
 
         text: root.finalSecondText
+        
+        scrollingEnabled: root.scrollingEnabled
+        scrollResetOnPause: root.scrollingResetOnPause
+        textColor: root.color
+        forcePauseScrolling: root.forcePauseScrolling
+        truncateStyle: root.truncateStyle
+        textAlignment: root.textAlignment
+    }
+
+    // third row of text
+    ScrollingText {
+        // visible only when necessary
+        visible: text.length !== 0
+        overflowBehaviour: root.scrollingBehaviour
+        font: root.textFont
+        speed: root.scrollingSpeed
+        maxWidth: root.maxWidth
+
+        text: root.finalThirdText
         
         scrollingEnabled: root.scrollingEnabled
         scrollResetOnPause: root.scrollingResetOnPause

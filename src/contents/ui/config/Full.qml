@@ -279,6 +279,16 @@ KCM.SimpleKCM {
             ButtonGroup.group: fullTitlePosition
         }
 
+        RadioButton {
+            text: i18n("Third line")
+            checked: fullTitlePosition.value == SongAndArtistText.TextPosition.ThirdLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullTitlePosition.value = SongAndArtistText.TextPosition.ThirdLine
+                }
+            }
+            ButtonGroup.group: fullTitlePosition
+        }
 
         // group for artists
 
@@ -321,6 +331,17 @@ KCM.SimpleKCM {
             onCheckedChanged: () => {
                 if (checked) {
                     fullArtistsPosition.value = SongAndArtistText.TextPosition.SecondLine
+                }
+            }
+            ButtonGroup.group: fullArtistsPosition
+        }
+
+        RadioButton {
+            text: i18n("Third line")
+            checked: fullArtistsPosition.value == SongAndArtistText.TextPosition.ThirdLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullArtistsPosition.value = SongAndArtistText.TextPosition.ThirdLine
                 }
             }
             ButtonGroup.group: fullArtistsPosition
@@ -371,6 +392,17 @@ KCM.SimpleKCM {
             ButtonGroup.group: fullAlbumPosition
         }
 
+        RadioButton {
+            text: i18n("Third line")
+            checked: fullAlbumPosition.value == SongAndArtistText.TextPosition.ThirdLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    fullAlbumPosition.value = SongAndArtistText.TextPosition.ThirdLine
+                }
+            }
+            ButtonGroup.group: fullAlbumPosition
+        }
+
         RowLayout{
             Kirigami.FormData.label: i18n("Hide album name for singles:")
             CheckBox{
@@ -382,7 +414,7 @@ KCM.SimpleKCM {
                 )
             }
         }
-        
+
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
             Kirigami.FormData.label: i18n("Text scrolling")
