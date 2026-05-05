@@ -41,6 +41,11 @@ KCM.SimpleKCM {
     property alias cfg_mediaProgressInPanel: mediaProgressInPanel.checked
     property alias cfg_compactHideAlbumForSingles: compactHideAlbumForSingles.checked
     property alias cfg_hidePlayerControlBindsInHoverTooltip: hidePlayerControlBindsInHoverTooltip.checked
+    property alias cfg_panelLyricsPosition: panelLyricsPosition.value
+    property alias cfg_thirdLineContent: thirdLineContent.value
+    property alias cfg_thirdLineMaxWidth: thirdLineMaxWidth.value
+    property alias cfg_thirdLineScrollingEnabled: thirdLineScrollingEnabled.checked
+    property alias cfg_thirdLineScrollingSpeed: thirdLineScrollingSpeed.value
 
     Kirigami.FormLayout {
         id: form
@@ -315,7 +320,52 @@ KCM.SimpleKCM {
                 )
             }
         }
-        
+
+        // group for lyrics
+        Item {
+            // adds spacing between the groups
+            height: 0.5 * Kirigami.Units.gridUnit
+        }
+
+        ButtonGroup {
+            id: panelLyricsPosition
+            property int value: SongAndArtistText.TextPosition.Hidden
+        }
+
+        RadioButton {
+            Kirigami.FormData.label: i18n("Lyrics position:")
+            text: i18n("Hidden")
+            checked: panelLyricsPosition.value == SongAndArtistText.TextPosition.Hidden
+            onCheckedChanged: () => {
+                if (checked) {
+                    panelLyricsPosition.value = SongAndArtistText.TextPosition.Hidden
+                }
+            }
+            ButtonGroup.group: panelLyricsPosition
+        }
+
+        RadioButton {
+            text: i18n("First line")
+            checked: panelLyricsPosition.value == SongAndArtistText.TextPosition.FirstLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    panelLyricsPosition.value = SongAndArtistText.TextPosition.FirstLine
+                }
+            }
+            ButtonGroup.group: panelLyricsPosition
+        }
+
+        RadioButton {
+            text: i18n("Second line")
+            checked: panelLyricsPosition.value == SongAndArtistText.TextPosition.SecondLine
+            onCheckedChanged: () => {
+                if (checked) {
+                    panelLyricsPosition.value = SongAndArtistText.TextPosition.SecondLine
+                }
+            }
+            ButtonGroup.group: panelLyricsPosition
+        }
+
         Item {
             // adds spacing between the groups
             height: 0.5 * Kirigami.Units.gridUnit
@@ -465,6 +515,119 @@ KCM.SimpleKCM {
             id: textScrollingResetOnPauseCheckbox
             Kirigami.FormData.label: i18n("Reset position when scrolling is paused")
             enabled: textScrollingEnabledCheckbox.checked
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Third line")
+        }
+
+        ButtonGroup {
+            id: thirdLineContent
+            property int value: 0
+        }
+
+        RadioButton {
+            Kirigami.FormData.label: i18n("Content:")
+            text: i18n("Hidden")
+            checked: thirdLineContent.value == 0
+            onCheckedChanged: () => {
+                if (checked) {
+                    thirdLineContent.value = 0
+                }
+            }
+            ButtonGroup.group: thirdLineContent
+        }
+
+        RadioButton {
+            text: i18n("Title")
+            checked: thirdLineContent.value == 1
+            onCheckedChanged: () => {
+                if (checked) {
+                    thirdLineContent.value = 1
+                }
+            }
+            ButtonGroup.group: thirdLineContent
+        }
+
+        RadioButton {
+            text: i18n("Artists")
+            checked: thirdLineContent.value == 2
+            onCheckedChanged: () => {
+                if (checked) {
+                    thirdLineContent.value = 2
+                }
+            }
+            ButtonGroup.group: thirdLineContent
+        }
+
+        RadioButton {
+            text: i18n("Album")
+            checked: thirdLineContent.value == 3
+            onCheckedChanged: () => {
+                if (checked) {
+                    thirdLineContent.value = 3
+                }
+            }
+            ButtonGroup.group: thirdLineContent
+        }
+
+        RadioButton {
+            text: i18n("Lyrics")
+            checked: thirdLineContent.value == 4
+            onCheckedChanged: () => {
+                if (checked) {
+                    thirdLineContent.value = 4
+                }
+            }
+            ButtonGroup.group: thirdLineContent
+        }
+
+        RadioButton {
+            text: i18n("Title - Artists")
+            checked: thirdLineContent.value == 5
+            onCheckedChanged: () => {
+                if (checked) {
+                    thirdLineContent.value = 5
+                }
+            }
+            ButtonGroup.group: thirdLineContent
+        }
+
+        RadioButton {
+            text: i18n("Title - Artists - Album")
+            checked: thirdLineContent.value == 6
+            onCheckedChanged: () => {
+                if (checked) {
+                    thirdLineContent.value = 6
+                }
+            }
+            ButtonGroup.group: thirdLineContent
+        }
+
+        SpinBox {
+            id: thirdLineMaxWidth
+            from: 50
+            to: 1000
+            stepSize: 10
+            Kirigami.FormData.label: i18n("Maximum width:")
+            enabled: thirdLineContent.value !== 0
+        }
+
+        CheckBox {
+            id: thirdLineScrollingEnabled
+            Kirigami.FormData.label: i18n("Scrolling enabled")
+            enabled: thirdLineContent.value !== 0
+        }
+
+        Slider {
+            Layout.preferredWidth: 10 * Kirigami.Units.gridUnit
+            id: thirdLineScrollingSpeed
+            from: 1
+            to: 10
+            stepSize: 1
+            Kirigami.FormData.label: i18n("Scrolling speed:")
+            enabled: thirdLineContent.value !== 0 && thirdLineScrollingEnabled.checked
         }
 
         Kirigami.Separator {

@@ -33,7 +33,7 @@ ColumnLayout {
 
     property bool hideAlbumForSingles
     property bool showAlbum: !hideAlbumForSingles || (root.album != root.title)
-    
+
     property font textFont: Kirigami.Theme.defaultFont
     property font boldTextFont: Qt.font(Object.assign({}, textFont, {weight: Font.Bold}))
     property string color: Kirigami.Theme.textColor
@@ -41,6 +41,9 @@ ColumnLayout {
     property string artists
     property string album
     property int textAlignment: Qt.AlignHCenter
+
+    property string lyricsText: ""
+    property int lyricsPosition: SongAndArtistText.TextPosition.Hidden
 
     spacing: 0
 
@@ -65,8 +68,18 @@ ColumnLayout {
         return arr;        
     }
 
-    property string finalFirstText:  firstLineArray.filter((x) => x).join(" - ")
-    property string finalSecondText: secondLineArray.filter((x) => x).join(" - ")
+    property string finalFirstText: {
+        if (lyricsPosition == SongAndArtistText.TextPosition.FirstLine && lyricsText) {
+            return lyricsText;
+        }
+        return firstLineArray.filter((x) => x).join(" - ");
+    }
+    property string finalSecondText: {
+        if (lyricsPosition == SongAndArtistText.TextPosition.SecondLine && lyricsText) {
+            return lyricsText;
+        }
+        return secondLineArray.filter((x) => x).join(" - ");
+    }
 
     // first row of text (the only row, if there is only one)
     ScrollingText {

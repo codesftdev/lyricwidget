@@ -15,8 +15,10 @@ Item {
     readonly property bool horizontal: widget.formFactor === PlasmaCore.Types.Horizontal
     readonly property bool fillAvailableSpace: plasmoid.configuration.fillAvailableSpace
 
-    Layout.preferredWidth: horizontal ? grid.implicitWidth + lengthMargin * 2 : grid.implicitWidth
-    Layout.preferredHeight: !horizontal ? grid.implicitHeight + lengthMargin * 2 : grid.implicitHeight
+    readonly property bool thirdLineVisible: plasmoid.configuration.thirdLineContent !== 0
+
+    Layout.preferredWidth: horizontal ? contentColumn.implicitWidth + lengthMargin * 2 : contentColumn.implicitWidth
+    Layout.preferredHeight: !horizontal ? contentColumn.implicitHeight + lengthMargin * 2 : contentColumn.implicitHeight
     Layout.minimumWidth: Layout.preferredWidth
     Layout.minimumHeight: Layout.preferredHeight
     Layout.fillHeight: horizontal || fillAvailableSpace
@@ -117,21 +119,27 @@ Item {
         }
     }
 
-    GridLayout {
-        id: grid
-
-        columns: horizontal ? grid.children.length : 1
-        rows: horizontal ? 1 : grid.children.length
-        columnSpacing: Kirigami.Units.smallSpacing
-        rowSpacing: Kirigami.Units.smallSpacing
-
-        anchors.leftMargin: horizontal ? lengthMargin: 0
-        anchors.rightMargin: horizontal ? lengthMargin : 0
-        anchors.bottomMargin: horizontal ? 0: lengthMargin
-        anchors.topMargin: horizontal ? 0 : lengthMargin
+    ColumnLayout {
+        id: contentColumn
         anchors.fill: parent
+        anchors.leftMargin: horizontal ? lengthMargin : 0
+        anchors.rightMargin: horizontal ? lengthMargin : 0
+        anchors.bottomMargin: horizontal ? 0 : lengthMargin
+        anchors.topMargin: horizontal ? 0 : lengthMargin
+        spacing: Kirigami.Units.smallSpacing
 
-        PanelIcon {
+        GridLayout {
+            id: grid
+
+            columns: horizontal ? grid.children.length : 1
+            rows: horizontal ? 1 : grid.children.length
+            columnSpacing: Kirigami.Units.smallSpacing
+            rowSpacing: Kirigami.Units.smallSpacing
+
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            PanelIcon {
             id: panelIcon
             visible: plasmoid.configuration.iconInPanel
 
@@ -225,6 +233,8 @@ Item {
                     textAlignment: songGrid.textAlignment
                     truncateStyle: plasmoid.configuration.compactTruncatedTextStyle
                     opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1.0 : 0.75
+                    lyricsText: lyricsManager.currentLineText
+                    lyricsPosition: plasmoid.configuration.panelLyricsPosition
                 }
             }
 
@@ -280,6 +290,41 @@ Item {
                 icon.color: foregroundColor
                 onClicked: player.next()
             }
+        }
+
+        }
+
+        ScrollingText {
+            id: thirdLine
+            visible: compact.thirdLineVisible
+            Layout.fillWidth: true
+
+            text: {
+                switch (plasmoid.configuration.thirdLineContent) {
+                case 1:
+                    return player.title;
+                case 2:
+                    return player.artists;
+                case 3:
+                    return player.album;
+                case 4:
+                    return lyricsManager.currentLineText;
+                case 5:
+                    return [player.title, player.artists].filter((x) => x).join(" - ");
+                case 6:
+                    return [player.title, player.artists, player.album].filter((x) => x).join(" - ");
+                default:
+                    return "";
+                }
+            }
+            textColor: foregroundColor
+            font: baseFont
+            speed: plasmoid.configuration.thirdLineScrollingSpeed
+            maxWidth: plasmoid.configuration.thirdLineMaxWidth
+            scrollingEnabled: plasmoid.configuration.thirdLineScrollingEnabled
+            textAlignment: songGrid.textAlignment
+            truncateStyle: plasmoid.configuration.compactTruncatedTextStyle
+            opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1.0 : 0.75
         }
     }
 }

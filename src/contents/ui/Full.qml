@@ -171,6 +171,23 @@ Item {
             }
         }
 
+        ScrollingText {
+            id: lyricsText
+            visible: plasmoid.configuration.showLyrics && lyricsManager.hasLyrics
+            Layout.fillWidth: true
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
+            Layout.topMargin: 5
+            Layout.bottomMargin: 5
+            text: lyricsManager.currentLineText
+            textColor: albumCoverBackground ? imageColors.fgColor : Kirigami.Theme.textColor
+            font: baseFont
+            speed: plasmoid.configuration.lyricsScrollingSpeed
+            maxWidth: width
+            textAlignment: plasmoid.configuration.lyricsAlignment
+            scrollingEnabled: true
+        }
+
         SongAndArtistText {
             visible: songTextVisible && songTextAboveProgressBar
             Layout.fillWidth: true

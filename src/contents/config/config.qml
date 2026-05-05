@@ -17,4 +17,9 @@ ConfigModel {
         icon: "preferences-system-windows-effect-slidingpopups"
         source: "config/Full.qml"
     }
+    ConfigCategory {
+        name: i18n("Flyout")
+        icon: "view-media-lyrics"
+        source: "config/Flyout.qml"
+    }
 }

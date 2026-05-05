@@ -1,11 +1,11 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2026 The plasmusic-toolbar Authors
-# This file is distributed under the same license as the plasmusic-toolbar package.
+# Copyright (C) 2026 The lyricwidget Authors
+# This file is distributed under the same license as the lyricwidget package.
 # A coffee lover (｡•̀ᴗ-)✧ 2026.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: plasmusic-toolbar\n"
+"Project-Id-Version: lyricwidget\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-09 21:39+0200\n"
 "PO-Revision-Date: 2026-03-08 00:00+0300\n"
