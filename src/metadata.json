@@ -3,11 +3,11 @@
     "KPlugin": {
         "Authors": [
             {
-                "Email": "catterina.claudio@gmail.com",
-                "Name": "Claudio Catterina"
+                "Email": "hello@codesft.dev",
+                "Name": "codesftdev"
             }
         ],
-        "Description": "Show currently playing song information and provide playback controls",
+        "Description": "Show currently playing song information and provide playback controls, as well as live lyrics",
         "BugReportUrl": "https://github.com/codesftdev/lyricwidget/issues",
         "Website": "https://github.com/codesftdev/lyricwidget",
         "Icon": "view-media-track",
