@@ -6,12 +6,15 @@ LyricWidget is a widget for KDE Plasma 6 that shows currently playing song infor
 
 LyricWidget is a fork of PlasMusic Toolbar, with this fork aiming to add more features.
 
+<img width="363" height="105" alt="image" src="https://github.com/user-attachments/assets/a98c66ba-6c9e-45cd-aac4-87d8f6631aa3" />
+
 </div>
 
 ## Compatibility
 
 - Compatible with KDE Plasma 6.0.4 and newer.
 - Plasma 5: a Plasma 5 version of the original PlasMusic Toolbar widget is available in the `plasma5` branch: https://github.com/ccatterina/plasmusic-toolbar/tree/plasma5
+- Compatibility with vertical panels is limited and some features may not work well. Please use LyricWidget in a horizontal panel.
 
 ## Features
 
@@ -23,9 +26,7 @@ LyricWidget is a fork of PlasMusic Toolbar, with this fork aiming to add more fe
 
 ### 📸 Full View
 - Full View provides the album image, along with Play, Pause, Next, Previous, Shuffle, and Repeat controls. Adjust the volume and track position with ease.
-
-### 🖥️ Compatibility
-- Compatible with both vertical and horizontal KDE Plasma panels, can also be used as a desktop widget.
+<img width="187.5" height="297" alt="image" src="https://github.com/user-attachments/assets/ffa5bd30-d78b-476b-8646-29b0243f9911" />
 
 ### 🛠️ Configurations
 - **Icon customization:** Change the widget's icon in the panel view to suit your preferences. You can also choose to display the album cover.
@@ -33,7 +34,7 @@ LyricWidget is a fork of PlasMusic Toolbar, with this fork aiming to add more fe
 - **Panel song/icon/controls visibility:** Choose whether to show icon, song text and playback controls in the panel view.
 - **Preferred source**: Change the widget preferred source for music information (choose between active MPRIS2 sources).
 - **Song text customization**: Customize the maximum (or fixed) text width and scrolling behavior with adjustable scroll speed.
-- **Live Lyrics**: Display live lyrics in both the full 
+- **Live Lyrics**: Display live lyrics in both the full view and panel view
 
 
 ## Installation
