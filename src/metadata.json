@@ -14,7 +14,7 @@
         "Id": "lyricwidget",
         "License": "GPL3",
         "Name": "LyricWidget",
-        "Version": "4.1.0",
+        "Version": "0.1.0",
         "Category": "Multimedia"
     },
     "X-Plasma-API-Minimum-Version": "6.0.4",
