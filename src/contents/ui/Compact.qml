@@ -14,15 +14,20 @@ Item {
 
     readonly property bool horizontal: widget.formFactor === PlasmaCore.Types.Horizontal
     readonly property bool fillAvailableSpace: plasmoid.configuration.fillAvailableSpace
+    readonly property bool contentHidden: widget.panelContentHidden
 
     readonly property bool thirdLineVisible: plasmoid.configuration.thirdLineContent !== 0
 
-    Layout.preferredWidth: horizontal ? contentColumn.implicitWidth + lengthMargin * 2 : contentColumn.implicitWidth
-    Layout.preferredHeight: !horizontal ? contentColumn.implicitHeight + lengthMargin * 2 : contentColumn.implicitHeight
-    Layout.minimumWidth: Layout.preferredWidth
-    Layout.minimumHeight: Layout.preferredHeight
-    Layout.fillHeight: horizontal || fillAvailableSpace
-    Layout.fillWidth: !horizontal || fillAvailableSpace
+    readonly property int hiddenSize: Math.max(plasmoid.configuration.panelHiddenWidth, 8)
+
+    Layout.preferredWidth: contentHidden ? (horizontal ? hiddenSize : contentColumn.implicitWidth) 
+                                         : (horizontal ? contentColumn.implicitWidth + lengthMargin * 2 : contentColumn.implicitWidth)
+    Layout.preferredHeight: contentHidden ? (!horizontal ? hiddenSize : contentColumn.implicitHeight) 
+                                          : (!horizontal ? contentColumn.implicitHeight + lengthMargin * 2 : contentColumn.implicitHeight)
+    Layout.minimumWidth: contentHidden ? (horizontal ? hiddenSize : Layout.preferredWidth) : Layout.preferredWidth
+    Layout.minimumHeight: contentHidden ? (!horizontal ? hiddenSize : Layout.preferredHeight) : Layout.preferredHeight
+    Layout.fillHeight: !contentHidden && (horizontal || fillAvailableSpace)
+    Layout.fillWidth: !contentHidden && (!horizontal || fillAvailableSpace)
 
     readonly property int widgetThickness: horizontal ? height : width
     readonly property int widgetLength: horizontal ? width : height
@@ -114,7 +119,8 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: backgroundColor
+        color: contentHidden ? "transparent" : backgroundColor
+        visible: !contentHidden || plasmoid.configuration.mediaProgressInPanel
         Item {
             width: horizontal ? parent.width : parent.width
             height: horizontal ? parent.height : parent.height
@@ -128,6 +134,24 @@ Item {
             }
         }
     }
+    
+    // Placeholder when content is hidden - provides clickable area for right-click
+    Rectangle {
+        anchors.fill: parent
+        color: "transparent"
+        visible: contentHidden
+        
+        // Small indicator icon to show the widget is there but hidden
+        Kirigami.Icon {
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height, hiddenSize * 0.6)
+            height: width
+            source: "view-hidden"
+            opacity: 0.5
+            visible: width >= 8
+        }
+    }
+    
     layer.enabled: compact.panelBackgroundRadius > 0 && (!Qt.colorEqual(backgroundColor, "transparent") || plasmoid.configuration.mediaProgressInPanel)
     layer.effect: OpacityMask {
         maskSource: Item {
@@ -186,6 +210,13 @@ Item {
         anchors.bottomMargin: horizontal ? 0 : lengthMargin
         anchors.topMargin: horizontal ? 0 : lengthMargin
         spacing: Kirigami.Units.smallSpacing
+        visible: !contentHidden
+
+        // Add vertical centering spacer when not filling available space
+        Item {
+            visible: !fillAvailableSpace && !compact.thirdLineVisible
+            Layout.fillHeight: true
+        }
 
         GridLayout {
             id: grid
@@ -198,22 +229,7 @@ Item {
             Layout.fillHeight: horizontal || fillAvailableSpace
             Layout.fillWidth: !horizontal || fillAvailableSpace
             Layout.maximumHeight: compact.thirdLineVisible && horizontal ? compact.availableThickness : Number.POSITIVE_INFINITY
-            Layout.alignment: {
-                if (fillAvailableSpace) return Qt.AlignVCenter | Qt.AlignHCenter
-                if (horizontal) {
-                    switch (plasmoid.configuration.contentAlignment) {
-                    case 1: return Qt.AlignLeft | Qt.AlignVCenter
-                    case 2: return Qt.AlignRight | Qt.AlignVCenter
-                    default: return Qt.AlignHCenter | Qt.AlignVCenter
-                    }
-                } else {
-                    switch (plasmoid.configuration.contentAlignment) {
-                    case 1: return Qt.AlignTop | Qt.AlignHCenter
-                    case 2: return Qt.AlignBottom | Qt.AlignHCenter
-                    default: return Qt.AlignVCenter | Qt.AlignHCenter
-                    }
-                }
-            }
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
 
             PanelIcon {
             id: panelIcon
@@ -311,8 +327,8 @@ Item {
                     textAlignment: songGrid.textAlignment
                     truncateStyle: plasmoid.configuration.compactTruncatedTextStyle
                     opacity: player.playbackStatus === Mpris.PlaybackStatus.Playing ? 1.0 : 0.75
-                    lyricsText: lyricsManager.currentLineText
-                    lyricsPosition: plasmoid.configuration.panelLyricsPosition
+                    lyricsText: widget.lyricsVisible ? lyricsManager.currentLineText : ""
+                    lyricsPosition: widget.lyricsVisible ? plasmoid.configuration.panelLyricsPosition : SongAndArtistText.TextPosition.Hidden
                 }
             }
 
@@ -372,6 +388,12 @@ Item {
 
         }
 
+        // Add vertical centering spacer when not filling available space and no third line
+        Item {
+            visible: !fillAvailableSpace && !compact.thirdLineVisible
+            Layout.fillHeight: true
+        }
+
         // Third line - independently positioned and aligned from the grid section
         ColumnLayout {
             id: thirdLineContainer
@@ -415,7 +437,7 @@ Item {
                     case 3:
                         return player.album;
                     case 4:
-                        return lyricsManager.currentLineText;
+                        return widget.lyricsVisible ? lyricsManager.currentLineText : "";
                     case 5:
                         return [player.title, player.artists].filter((x) => x).join(" - ");
                     case 6:

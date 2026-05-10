@@ -50,6 +50,7 @@ KCM.SimpleKCM {
     property alias cfg_thirdLineAlignment: thirdLineAlignment.value
     property alias cfg_contentAlignment: contentAlignment.value
     property alias cfg_albumCoverRadiusProportional: albumCoverRadiusProportional.checked
+    property alias cfg_panelHiddenWidth: panelHiddenWidth.value
 
     Kirigami.FormLayout {
         id: form
@@ -108,6 +109,18 @@ KCM.SimpleKCM {
                 }
             }
             ButtonGroup.group: contentAlignment
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Hidden content width:")
+            SpinBox {
+                id: panelHiddenWidth
+                from: 8
+                to: 100
+            }
+            Kirigami.ContextualHelpButton {
+                toolTipText: i18n("Width of the widget when panel content is hidden (minimum 8 pixels)")
+            }
         }
 
         ButtonGroup {
