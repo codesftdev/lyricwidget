@@ -21,6 +21,10 @@ PlasmoidItem {
 
     readonly property font baseFont: plasmoid.configuration.useCustomFont ? plasmoid.configuration.customFont : Kirigami.Theme.defaultFont
 
+    // Runtime state properties - independent per widget instance
+    property bool panelContentHidden: false
+    property bool lyricsVisible: true
+
     toolTipTextFormat: Text.PlainText
     toolTipMainText: player.playbackStatus > Mpris.PlaybackStatus.Stopped ? player.title : i18n("No media playing")
     toolTipSubText: {
@@ -59,6 +63,24 @@ PlasmoidItem {
         duration: player.songLength
         position: player.songPosition
     }
+
+    // Context menu actions for right-click
+    Plasmoid.contextualActions: [
+        PlasmaCore.Action {
+            text: panelContentHidden ? i18n("Show Panel Content") : i18n("Hide Panel Content")
+            icon.name: panelContentHidden ? "view-visible" : "view-hidden"
+            onTriggered: {
+                panelContentHidden = !panelContentHidden
+            }
+        },
+        PlasmaCore.Action {
+            text: lyricsVisible ? i18n("Hide Lyrics") : i18n("Show Lyrics")
+            icon.name: lyricsVisible ? "view-hidden" : "view-visible"
+            onTriggered: {
+                lyricsVisible = !lyricsVisible
+            }
+        }
+    ]
 
     compactRepresentation: Compact {}
     fullRepresentation: Full {}

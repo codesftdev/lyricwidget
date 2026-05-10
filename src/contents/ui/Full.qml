@@ -173,7 +173,7 @@ Item {
 
         ScrollingText {
             id: lyricsText
-            visible: plasmoid.configuration.showLyrics && lyricsManager.hasLyrics
+            visible: widget.lyricsVisible && lyricsManager.hasLyrics
             Layout.fillWidth: true
             Layout.leftMargin: 10
             Layout.rightMargin: 10
