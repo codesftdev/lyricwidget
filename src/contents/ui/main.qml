@@ -23,7 +23,7 @@ PlasmoidItem {
 
     // Runtime state properties - independent per widget instance
     property bool panelContentHidden: false
-    property bool lyricsVisible: plasmoid.configuration.showLyrics
+    property bool lyricsVisible: true
 
     toolTipTextFormat: Text.PlainText
     toolTipMainText: player.playbackStatus > Mpris.PlaybackStatus.Stopped ? player.title : i18n("No media playing")
@@ -78,7 +78,6 @@ PlasmoidItem {
             icon.name: lyricsVisible ? "view-hidden" : "view-visible"
             onTriggered: {
                 lyricsVisible = !lyricsVisible
-                plasmoid.configuration.showLyrics = lyricsVisible
             }
         }
     ]
