@@ -4,7 +4,7 @@
 
 LyricWidget is a widget for KDE Plasma 6 that shows currently playing song information and provide playback controls, alongside live lyrics from LRCLIB.
 
-LyricWidget is a fork of PlasMusic Toolbar, with this fork aiming to add more features.
+LyricWidget is a fork of [PlasMusic Toolbar](https://github.com/ccatterina/plasmusic-toolbar), with this fork aiming to add more features.
 
 <img width="363" height="105" alt="image" src="https://github.com/user-attachments/assets/a98c66ba-6c9e-45cd-aac4-87d8f6631aa3" />
 
