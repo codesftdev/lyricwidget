@@ -39,26 +39,47 @@ LyricWidget is a fork of [PlasMusic Toolbar](https://github.com/ccatterina/plasm
 
 ## Installation
 
+### Quick Install (Recommended)
+
+Run the interactive installer directly from GitHub. It will clone the repo, compile translations, and ask you whether to install, upgrade, or remove.
+
+**Bash / Zsh:**
+```sh
+shell=$(ps -p $$ -o comm= 2>/dev/null); if [ "$shell" = "fish" ]; then curl -fsSL -o /tmp/lyricwidget-install.fish https://raw.githubusercontent.com/codesftdev/lyricwidget/main/bin/install.fish && fish /tmp/lyricwidget-install.fish; else curl -fsSL -o /tmp/lyricwidget-install https://raw.githubusercontent.com/codesftdev/lyricwidget/main/bin/install && bash /tmp/lyricwidget-install; fi
+```
+
+**Fish:**
+```sh
+curl -fsSL -o /tmp/lyricwidget-install.fish https://raw.githubusercontent.com/codesftdev/lyricwidget/main/bin/install.fish && fish /tmp/lyricwidget-install.fish
+```
+
+> **Tip:** Not sure which shell you're using? Run `echo $0` in your terminal.
+
 ### Manual
+
+If you prefer to do things manually, you can clone the repository and use `kpackagetool6` directly:
+
 1. Clone the repository:
     ```sh
     git clone https://github.com/codesftdev/lyricwidget
     ```
 
-2. Install the widget:
-
+2. Compile translations:
     ```sh
-    kpackagetool6 -i /path/to/lyricwidget --type Plasma/Applet
+    cd lyricwidget && ./bin/i18n compile
     ```
 
-3. Upgrading the widget:
-
+3. Install the widget:
     ```sh
-    kpackagetool6 -u /path/to/lyricwidget/src/ --type Plasma/Applet
+    kpackagetool6 -i src --type Plasma/Applet
     ```
 
-4. Removing the widget:
+4. Upgrading the widget:
+    ```sh
+    kpackagetool6 -u src --type Plasma/Applet
+    ```
 
+5. Removing the widget:
     ```sh
     kpackagetool6 -r lyricwidget --type Plasma/Applet
     ```
