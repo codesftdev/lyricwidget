@@ -9,11 +9,11 @@
 
 # ─── Constants ───────────────────────────────────────────────────────────────
 
-set -l REPO_URL "https://github.com/codesftdev/lyricwidget.git"
-set -l PACKAGE_ID "lyricwidget"
-set -l PACKAGE_TYPE "Plasma/Applet"
-set -l DEFAULT_CLONE_DIR "/tmp/lyricwidget-install"
-set -l INSTALLED_DIR "$HOME/.local/share/plasma/plasmoids/$PACKAGE_ID"
+set -g REPO_URL "https://github.com/codesftdev/lyricwidget.git"
+set -g PACKAGE_ID "lyricwidget"
+set -g PACKAGE_TYPE "Plasma/Applet"
+set -g DEFAULT_CLONE_DIR "/tmp/lyricwidget-install"
+set -g INSTALLED_DIR "$HOME/.local/share/plasma/plasmoids/$PACKAGE_ID"
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -110,6 +110,8 @@ function get_source_dir
         if test (count $files) -gt 0
             die "Directory $clone_dir exists and is not empty. Please choose a different location."
         end
+    else if test -e "$clone_dir"
+        die "$clone_dir already exists and is not a directory. Please choose a different location."
     end
 
     # Clone if needed

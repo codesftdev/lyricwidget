@@ -112,6 +112,8 @@ get_source_dir() {
         if [ -n "$(ls -A "$clone_dir" 2>/dev/null)" ]; then
             die "Directory $clone_dir exists and is not empty. Please choose a different location."
         fi
+    elif [ -e "$clone_dir" ]; then
+        die "$clone_dir already exists and is not a directory. Please choose a different location."
     fi
 
     # Clone if needed

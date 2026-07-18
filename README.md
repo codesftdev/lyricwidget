@@ -45,7 +45,7 @@ Run the interactive installer directly from GitHub. It will clone the repo, comp
 
 **Bash / Zsh:**
 ```sh
-shell=$(ps -p $$ -o comm= 2>/dev/null); if [ "$shell" = "fish" ]; then curl -fsSL -o /tmp/lyricwidget-install.fish https://raw.githubusercontent.com/codesftdev/lyricwidget/main/bin/install.fish && fish /tmp/lyricwidget-install.fish; else curl -fsSL -o /tmp/lyricwidget-install https://raw.githubusercontent.com/codesftdev/lyricwidget/main/bin/install && bash /tmp/lyricwidget-install; fi
+shell=$(ps -p $$ -o comm= 2>/dev/null); if [ "$shell" = "fish" ]; then curl -fsSL -o /tmp/lyricwidget-install.fish https://raw.githubusercontent.com/codesftdev/lyricwidget/main/bin/install.fish && fish /tmp/lyricwidget-install.fish; else curl -fsSL -o /tmp/lyricwidget-install.sh https://raw.githubusercontent.com/codesftdev/lyricwidget/main/bin/install && bash /tmp/lyricwidget-install.sh; fi
 ```
 
 **Fish:**
